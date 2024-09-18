@@ -166,7 +166,7 @@ class Tapper {
           platform,
           from_bot_menu: true,
           url: app.webviewUrl,
-          startParam: 1167045062,
+          startParam: "1167045062",
         })
       );
 
