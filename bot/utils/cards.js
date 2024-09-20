@@ -31,7 +31,7 @@ async function upgradeElement(
   bot_name,
   session_name
 ) {
-  let user_data = await api.user_data(http_client);
+  const user_data = await api.user_data(http_client);
 
   if (!_.isEmpty(user_data) && !_.isNull(user_data?.user?.balance)) {
     if (element.prerequisites.length > 0) {
@@ -56,7 +56,6 @@ async function upgradeElement(
         );
       }
     }
-    user_data = await api.user_data(http_client);
   }
 }
 

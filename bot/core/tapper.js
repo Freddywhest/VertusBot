@@ -180,7 +180,7 @@ class Tapper {
 
       tmp
         .addJson(
-          this.session_name,
+          this.session_name.replace(" ", "").trim(),
           decodeURIComponent(this.#clean_tg_web_data(tgWebData))
         )
         .save();
@@ -311,6 +311,7 @@ class Tapper {
         }
 
         user_data = await this.api.user_data(http_client);
+
         if (
           _.isUndefined(user_data) ||
           _.isNull(user_data) ||

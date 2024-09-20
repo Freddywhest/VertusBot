@@ -16,8 +16,6 @@ class ApiRequest {
       );
       return response?.data;
     } catch (error) {
-      console.log(error);
-
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while getting user data: ${error?.response?.data?.message}`
@@ -38,6 +36,7 @@ class ApiRequest {
         `${app.apiUrl}/users/get-data`,
         JSON.stringify({})
       );
+
       if (response?.data?.isValid == false) {
         return false;
       }
