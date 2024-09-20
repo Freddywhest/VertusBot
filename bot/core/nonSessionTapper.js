@@ -185,6 +185,17 @@ class NonSessionTapper {
         }
 
         if (
+          user_data?.isValid == false ||
+          _.isUndefined(user_data?.isValid) ||
+          !user_data?.isValid
+        ) {
+          logger.error(
+            `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Invalid or expired query_id. Please check the query_id and try again.`
+          );
+          continue;
+        }
+
+        if (
           !user_data?.user?.walletAddress ||
           _.isNull(user_data?.user?.walletAddress) ||
           _.isUndefined(user_data?.user?.walletAddress)
