@@ -3,6 +3,7 @@ const settings = require("../config/config");
 const logger = require("./logger");
 const sleep = require("./sleep");
 const divider = Number(1000000000000000000n);
+let user_data;
 // Function to create a lookup map of elements by their _id
 function createElementMap(elements) {
   return elements.reduce((acc, el) => {
@@ -31,30 +32,37 @@ async function upgradeElement(
   bot_name,
   session_name
 ) {
-  const user_data = await api.user_data(http_client);
+  try {
+    user_data = await api.user_data(http_client);
 
-  if (!_.isEmpty(user_data) && !_.isNull(user_data?.user?.balance)) {
-    if (element.prerequisites.length > 0) {
-      // Handle prerequisites first
-      await handlePrerequisites(element, elementMap, http_client);
+    if (_.isEmpty(user_data) || _.isNull(user_data?.user?.balance)) {
+      throw new Error("User data is missing or balance is undefined");
     }
-    const card = element?.levels[element?.currentLevel];
-    // Upgrade the current element if its currentLevel is 0 and isUpgradable
-    if (
-      _.gte(user_data?.user?.balance, card?.cost) &&
-      _.lt(
-        _.divide(user_data?.user?.balance, divider),
-        settings.BALANCE_TO_SAVE
-      )
-    ) {
-      // Make the API request to upgrade the card
-      const result = await api.upgrade_card(http_client, element._id);
-      // If the API call is successful, update the element locally
-      if (result?.isSuccess == true) {
-        logger.info(
-          `<ye>[${bot_name}]</ye> | ${session_name} | ⚡️ Card upgraded: <la>${element.cardName}</la>`
-        );
-      }
+  } catch (error) {
+    logger.error(
+      `<ye>[${bot_name}]</ye> | ${session_name} | ❗️Unknown error: ${error}`
+    );
+    return; // Exit early if there's an error with user_data
+  }
+
+  if (element.prerequisites.length > 0) {
+    // Handle prerequisites first
+    await handlePrerequisites(element, elementMap, http_client);
+  }
+
+  const card = element?.levels[element?.currentLevel];
+  // Upgrade the current element if its currentLevel is 0 and isUpgradable
+  if (
+    _.gte(user_data?.user?.balance, card?.cost) &&
+    _.lt(_.divide(user_data?.user?.balance, divider), settings.BALANCE_TO_SAVE)
+  ) {
+    // Make the API request to upgrade the card
+    const result = await api.upgrade_card(http_client, element._id);
+    // If the API call is successful, update the element locally
+    if (result?.isSuccess == true) {
+      logger.info(
+        `<ye>[${bot_name}]</ye> | ${session_name} | ⚡️ Card upgraded: <la>${element.cardName}</la>`
+      );
     }
   }
 }
