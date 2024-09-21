@@ -40,7 +40,9 @@ async function fetchUserDataWithRetry(
       }
     } catch (error) {
       logger.warning(
-        `Attempt ${attempt + 1}: Failed to fetch user_data - ${
+        `<ye>[${bot_name}]</ye> | ${session_name} | Attempt ${
+          attempt + 1
+        }: Failed to fetch user_data - ${
           error.message
         }. Retrying in ${delay} seconds...`
       );

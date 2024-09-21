@@ -373,7 +373,9 @@ class Tapper {
           if (
             !_.isEmpty(get_codes) &&
             !_.isNull(get_codes?.vertusCodes) &&
-            !_.isUndefined(get_codes?.vertusCodes)
+            !_.isUndefined(get_codes?.vertusCodes) &&
+            !_.isUndefined(get_codes?.vertusDate) &&
+            moment(get_codes?.vertusDate).isSame(moment(), "day")
           ) {
             const claim_daily_code = await this.api.codes_validate(
               http_client,
