@@ -26,6 +26,8 @@ async function handlePrerequisites(element, elementMap, http_client) {
 async function fetchUserDataWithRetry(
   http_client,
   api,
+  bot_name,
+  session_name,
   retries = 3,
   delay = 2
 ) {
@@ -67,7 +69,12 @@ async function upgradeElement(
   let user_data;
 
   try {
-    user_data = await fetchUserDataWithRetry(http_client, api);
+    user_data = await fetchUserDataWithRetry(
+      http_client,
+      api,
+      bot_name,
+      session_name
+    );
   } catch (error) {
     logger.error(
       `<ye>[${bot_name}]</ye> | ${session_name} | ❗️Unknown error while upgrading cards: ${error.message}`
