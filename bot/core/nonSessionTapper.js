@@ -132,6 +132,7 @@ class NonSessionTapper {
     let access_token_created_time = 0;
 
     let user_data;
+    let missions_data;
     const divider = Number(1000000000000000000n);
 
     if (settings.USE_PROXY_FROM_FILE && proxy) {
@@ -176,22 +177,13 @@ class NonSessionTapper {
         }
 
         user_data = await this.api.user_data(http_client);
+        missions_data = await this.api.get_missions(http_client);
+
         if (
           _.isUndefined(user_data) ||
           _.isNull(user_data) ||
           _.isEmpty(user_data)
         ) {
-          continue;
-        }
-
-        if (
-          user_data?.isValid == false ||
-          _.isUndefined(user_data?.isValid) ||
-          !user_data?.isValid
-        ) {
-          logger.error(
-            `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Invalid or expired query_id. Please check the query_id and try again.`
-          );
           continue;
         }
 
@@ -236,6 +228,47 @@ class NonSessionTapper {
         );
 
         await sleep(2);
+
+        if (
+          !_.isUndefined(missions_data) &&
+          !_.isNull(missions_data) &&
+          !_.isEmpty(missions_data)
+        ) {
+          const adsgrams = missions_data?.sponsors[0]?.filter(
+            (mission) => mission.resource?.toLowerCase() === "adsgram"
+          );
+
+          if (_.size(adsgrams) > 0) {
+            const adsgram = adsgrams[0];
+            if (moment(adsgram?.nextTime).isSameOrBefore(moment())) {
+              const check_adsgram = await this.api.check_adsgram(http_client);
+              if (check_adsgram?.isSuccess == true) {
+                const sleep_adsgram = _.random(30, 60);
+                logger.info(
+                  `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Watching ads for ${sleep_adsgram} seconds`
+                );
+                await sleep(sleep_adsgram);
+
+                const complete_adsgram = await this.api.complete_adsgram(
+                  http_client
+                );
+
+                if (complete_adsgram?.isSuccess == true) {
+                  logger.success(
+                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claimed successfully`
+                  );
+                } else {
+                  logger.warning(
+                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claim failed (${complete_adsgram?.msg})`
+                  );
+                }
+              }
+            }
+          }
+        }
+
+        await sleep(2);
+
         if (
           moment(user_data?.user?.dailyCode?.validDate).isBefore(
             moment(),
@@ -248,7 +281,9 @@ class NonSessionTapper {
           if (
             !_.isEmpty(get_codes) &&
             !_.isNull(get_codes?.vertusCodes) &&
-            !_.isUndefined(get_codes?.vertusCodes)
+            !_.isUndefined(get_codes?.vertusCodes) &&
+            !_.isUndefined(get_codes?.vertusDate) &&
+            moment(get_codes?.vertusDate).isSame(moment(), "day")
           ) {
             const claim_daily_code = await this.api.codes_validate(
               http_client,

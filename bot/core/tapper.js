@@ -267,6 +267,7 @@ class Tapper {
     let access_token_created_time = 0;
 
     let user_data;
+    let missions_data;
     const divider = Number(1000000000000000000n);
 
     if (settings.USE_PROXY_FROM_FILE && proxy) {
@@ -311,6 +312,7 @@ class Tapper {
         }
 
         user_data = await this.api.user_data(http_client);
+        missions_data = await this.api.get_missions(http_client);
 
         if (
           _.isUndefined(user_data) ||
@@ -361,6 +363,47 @@ class Tapper {
         );
 
         await sleep(2);
+
+        if (
+          !_.isUndefined(missions_data) &&
+          !_.isNull(missions_data) &&
+          !_.isEmpty(missions_data)
+        ) {
+          const adsgrams = missions_data?.sponsors[0]?.filter(
+            (mission) => mission.resource?.toLowerCase() === "adsgram"
+          );
+
+          if (_.size(adsgrams) > 0) {
+            const adsgram = adsgrams[0];
+            if (moment(adsgram?.nextTime).isSameOrBefore(moment())) {
+              const check_adsgram = await this.api.check_adsgram(http_client);
+              if (check_adsgram?.isSuccess == true) {
+                const sleep_adsgram = _.random(30, 60);
+                logger.info(
+                  `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Watching ads for ${sleep_adsgram} seconds`
+                );
+                await sleep(sleep_adsgram);
+
+                const complete_adsgram = await this.api.complete_adsgram(
+                  http_client
+                );
+
+                if (complete_adsgram?.isSuccess == true) {
+                  logger.success(
+                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claimed successfully`
+                  );
+                } else {
+                  logger.warning(
+                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claim failed (${complete_adsgram?.msg})`
+                  );
+                }
+              }
+            }
+          }
+        }
+
+        await sleep(2);
+
         if (
           moment(user_data?.user?.dailyCode?.validDate).isBefore(
             moment(),

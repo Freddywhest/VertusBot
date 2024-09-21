@@ -157,6 +157,72 @@ class ApiRequest {
     }
   }
 
+  async get_missions(http_client) {
+    try {
+      const response = await http_client.post(
+        `${app.apiUrl}/missions/get`,
+        JSON.stringify({ isPremium: false, languageCode: "en" })
+      );
+      return response.data;
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        logger.warning(
+          `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>getting missions:</b> ${error?.response?.data?.message}`
+        );
+      } else {
+        logger.error(
+          `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Error while <b>getting missions:</b> ${error.message}`
+        );
+      }
+
+      return null;
+    }
+  }
+
+  async check_adsgram(http_client) {
+    try {
+      const response = await http_client.post(
+        `${app.apiUrl}/missions/check-adsgram`,
+        JSON.stringify({})
+      );
+      return response.data;
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        logger.warning(
+          `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>checking adsgram:</b> ${error?.response?.data?.message}`
+        );
+      } else {
+        logger.error(
+          `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Error while <b>checking adsgram:</b> ${error.message}`
+        );
+      }
+
+      return null;
+    }
+  }
+
+  async complete_adsgram(http_client) {
+    try {
+      const response = await http_client.post(
+        `${app.apiUrl}/missions/complete-adsgram`,
+        JSON.stringify({})
+      );
+      return response.data;
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        logger.warning(
+          `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>complete adsgram:</b> ${error?.response?.data?.message}`
+        );
+      } else {
+        logger.error(
+          `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Error while <b>complete adsgram:</b> ${error.message}`
+        );
+      }
+
+      return null;
+    }
+  }
+
   async get_codes(http_client) {
     try {
       const response = await http_client.get(app.comboUrl);
