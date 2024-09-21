@@ -23,6 +23,36 @@ async function handlePrerequisites(element, elementMap, http_client) {
   }
 }
 
+async function fetchUserDataWithRetry(
+  http_client,
+  api,
+  retries = 3,
+  delay = 2
+) {
+  let attempt = 0;
+  while (attempt < retries) {
+    try {
+      const user_data = await api.user_data(http_client);
+      if (user_data && user_data?.user?.balance !== undefined) {
+        return user_data;
+      } else {
+        throw new Error("User data is missing or balance is undefined");
+      }
+    } catch (error) {
+      logger.warning(
+        `Attempt ${attempt + 1}: Failed to fetch user_data - ${
+          error.message
+        }. Retrying in ${delay} seconds...`
+      );
+      attempt++;
+      if (attempt < retries) {
+        await sleep(_.random(delay, delay + 10)); // Wait before retrying
+      }
+    }
+  }
+  throw new Error("Failed to fetch user_data after multiple attempts");
+}
+
 // Function to upgrade an element if possible
 async function upgradeElement(
   element,
@@ -32,33 +62,28 @@ async function upgradeElement(
   bot_name,
   session_name
 ) {
-  try {
-    user_data = await api.user_data(http_client);
+  let user_data;
 
-    if (_.isEmpty(user_data) || _.isNull(user_data?.user?.balance)) {
-      throw new Error("User data is missing or balance is undefined");
-    }
+  try {
+    user_data = await fetchUserDataWithRetry(http_client, api);
   } catch (error) {
     logger.error(
-      `<ye>[${bot_name}]</ye> | ${session_name} | ❗️Unknown error: ${error}`
+      `<ye>[${bot_name}]</ye> | ${session_name} | ❗️Unknown error while upgrading cards: ${error.message}`
     );
-    return; // Exit early if there's an error with user_data
+    return; // Exit early if user_data cannot be fetched after retries
   }
 
   if (element.prerequisites.length > 0) {
-    // Handle prerequisites first
     await handlePrerequisites(element, elementMap, http_client);
   }
 
   const card = element?.levels[element?.currentLevel];
-  // Upgrade the current element if its currentLevel is 0 and isUpgradable
+
   if (
     _.gte(user_data?.user?.balance, card?.cost) &&
     _.lt(_.divide(user_data?.user?.balance, divider), settings.BALANCE_TO_SAVE)
   ) {
-    // Make the API request to upgrade the card
     const result = await api.upgrade_card(http_client, element._id);
-    // If the API call is successful, update the element locally
     if (result?.isSuccess == true) {
       logger.info(
         `<ye>[${bot_name}]</ye> | ${session_name} | ⚡️ Card upgraded: <la>${element.cardName}</la>`
