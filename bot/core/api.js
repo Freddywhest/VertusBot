@@ -16,6 +16,10 @@ class ApiRequest {
       );
       return response?.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
+
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while getting user data: ${error?.response?.data?.message}`
@@ -58,6 +62,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>creating wallet:</b>: ${error?.response?.data?.message}`
@@ -80,6 +87,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>activating account:</b> ${error?.response?.data?.message}`
@@ -102,6 +112,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>collecting coins:</b> ${error?.response?.data?.message}`
@@ -124,6 +137,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>claiming daily reward:</b> ${error?.response?.data?.message}`
@@ -143,6 +159,9 @@ class ApiRequest {
       const response = await http_client.get(`${app.apiUrl}/upgrade-cards`);
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>getting cards:</b> ${error?.response?.data?.message}`
@@ -165,6 +184,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>getting missions:</b> ${error?.response?.data?.message}`
@@ -187,6 +209,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>checking adsgram:</b> ${error?.response?.data?.message}`
@@ -209,6 +234,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>complete adsgram:</b> ${error?.response?.data?.message}`
@@ -250,6 +278,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>upgrading card:</b> ${error?.response?.data?.message}`
@@ -272,6 +303,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>upgrading:</b> ${error?.response?.data?.message}`
@@ -294,6 +328,9 @@ class ApiRequest {
       );
       return response.data;
     } catch (error) {
+      if (error?.response?.status >= 500 && error?.response?.status < 600) {
+        return null;
+      }
       if (error?.response?.data?.message) {
         logger.warning(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ⚠️ Error while <b>validating codes:</b> ${error?.response?.data?.message}`
