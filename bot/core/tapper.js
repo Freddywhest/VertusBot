@@ -364,40 +364,52 @@ class Tapper {
 
         await sleep(2);
 
-        if (
-          !_.isUndefined(missions_data) &&
-          !_.isNull(missions_data) &&
-          !_.isEmpty(missions_data)
-        ) {
-          const adsgrams = missions_data?.sponsors[0]?.filter(
+        if (!_.isEmpty(missions_data)) {
+          const adsgrams = missions_data?.sponsors[0]?.find(
             (mission) => mission.resource?.toLowerCase() === "adsgram"
           );
 
-          if (_.size(adsgrams) > 0) {
-            const adsgram = adsgrams[0];
-            if (moment(adsgram?.nextTime).isSameOrBefore(moment())) {
-              const check_adsgram = await this.api.check_adsgram(http_client);
-              if (check_adsgram?.isSuccess == true) {
-                const sleep_adsgram = _.random(30, 60);
-                logger.info(
-                  `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Watching ads for ${sleep_adsgram} seconds`
-                );
-                await sleep(sleep_adsgram);
-
-                const complete_adsgram = await this.api.complete_adsgram(
-                  http_client
-                );
-
-                if (complete_adsgram?.isSuccess == true) {
-                  logger.success(
-                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claimed successfully`
+          if (!_.isEmpty(adsgrams)) {
+            if (
+              moment(adsgrams?.nextTime).isSameOrBefore(moment()) ||
+              _.isNull(adsgrams?.nextTime)
+            ) {
+              if (_.lt(adsgrams?.completion, adsgrams?.maxCompletion)) {
+                const check_adsgram = await this.api.check_adsgram(http_client);
+                if (check_adsgram?.isSuccess == true) {
+                  const sleep_adsgram = _.random(30, 60);
+                  logger.info(
+                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Watching ads for ${sleep_adsgram} seconds`
                   );
-                } else {
-                  logger.warning(
-                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claim failed (${complete_adsgram?.msg})`
+                  await sleep(sleep_adsgram);
+
+                  const complete_adsgram = await this.api.complete_adsgram(
+                    http_client
                   );
+
+                  if (complete_adsgram?.isSuccess == true) {
+                    logger.success(
+                      `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claimed successfully`
+                    );
+                  } else {
+                    logger.warning(
+                      `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claim failed (${complete_adsgram?.msg})`
+                    );
+                  }
                 }
+              } else {
+                logger.info(
+                  `<ye>[${this.bot_name}]</ye> | ${this.session_name} | All Ads has been claimed`
+                );
               }
+            } else {
+              logger.info(
+                `<ye>[${this.bot_name}]</ye> | ${
+                  this.session_name
+                } | Next Ads will be available in ${moment(
+                  adsgrams?.nextTime
+                ).fromNow()}`
+              );
             }
           }
         }
@@ -434,7 +446,7 @@ class Tapper {
               logger.info(
                 `<ye>[${this.bot_name}]</ye> | ${
                   this.session_name
-                } Daily code claimed | Reward: <bl>${_.ceil(
+                } | Daily code claimed | Reward: <bl>${_.ceil(
                   _.divide(claim_daily_code?.added, divider),
                   5
                 )}</bl> | Codes: <la>${
@@ -462,7 +474,7 @@ class Tapper {
             logger.info(
               `<ye>[${this.bot_name}]</ye> | ${
                 this.session_name
-              } Daily reward claimed | New balance: <pi>${_.ceil(
+              } | Daily reward claimed | New balance: <pi>${_.ceil(
                 _.divide(claim_daily?.balance, divider),
                 5
               )}</pi> | Rewards: <la>${_.ceil(
@@ -496,7 +508,7 @@ class Tapper {
             logger.info(
               `<ye>[${this.bot_name}]</ye> | ${
                 this.session_name
-              } Farming claimed | New balance: <pi>${_.ceil(
+              } | Farming claimed | New balance: <pi>${_.ceil(
                 _.divide(collect_coins?.newBalance, divider),
                 5
               )}</pi>`
@@ -566,10 +578,8 @@ class Tapper {
           }
           user_data = await this.api.user_data(http_client);
         }
-
-        await sleep(2);
         //cards
-        if (settings.AUTO_BUY_AND_UPDATE_CARDS) {
+        /* if (settings.AUTO_BUY_AND_UPDATE_CARDS) {
           const cards = await this.api.get_cards(http_client);
 
           if (!_.isEmpty(cards?.economyCards)) {
@@ -601,7 +611,7 @@ class Tapper {
               this.session_name
             );
           }
-        }
+        } */
       } catch (error) {
         logger.error(
           `<ye>[${this.bot_name}]</ye> | ${this.session_name} | ❗️Unknown error: ${error}`

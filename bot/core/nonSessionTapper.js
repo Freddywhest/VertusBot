@@ -229,40 +229,52 @@ class NonSessionTapper {
 
         await sleep(2);
 
-        if (
-          !_.isUndefined(missions_data) &&
-          !_.isNull(missions_data) &&
-          !_.isEmpty(missions_data)
-        ) {
-          const adsgrams = missions_data?.sponsors[0]?.filter(
+        if (!_.isEmpty(missions_data)) {
+          const adsgrams = missions_data?.sponsors[0]?.find(
             (mission) => mission.resource?.toLowerCase() === "adsgram"
           );
 
-          if (_.size(adsgrams) > 0) {
-            const adsgram = adsgrams[0];
-            if (moment(adsgram?.nextTime).isSameOrBefore(moment())) {
-              const check_adsgram = await this.api.check_adsgram(http_client);
-              if (check_adsgram?.isSuccess == true) {
-                const sleep_adsgram = _.random(30, 60);
-                logger.info(
-                  `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Watching ads for ${sleep_adsgram} seconds`
-                );
-                await sleep(sleep_adsgram);
-
-                const complete_adsgram = await this.api.complete_adsgram(
-                  http_client
-                );
-
-                if (complete_adsgram?.isSuccess == true) {
-                  logger.success(
-                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claimed successfully`
+          if (!_.isEmpty(adsgrams)) {
+            if (
+              moment(adsgrams?.nextTime).isSameOrBefore(moment()) ||
+              _.isNull(adsgrams?.nextTime)
+            ) {
+              if (_.lt(adsgrams?.completion, adsgrams?.maxCompletion)) {
+                const check_adsgram = await this.api.check_adsgram(http_client);
+                if (check_adsgram?.isSuccess == true) {
+                  const sleep_adsgram = _.random(30, 60);
+                  logger.info(
+                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Watching ads for ${sleep_adsgram} seconds`
                   );
-                } else {
-                  logger.warning(
-                    `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claim failed (${complete_adsgram?.msg})`
+                  await sleep(sleep_adsgram);
+
+                  const complete_adsgram = await this.api.complete_adsgram(
+                    http_client
                   );
+
+                  if (complete_adsgram?.isSuccess == true) {
+                    logger.success(
+                      `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claimed successfully`
+                    );
+                  } else {
+                    logger.warning(
+                      `<ye>[${this.bot_name}]</ye> | ${this.session_name} | Ads claim failed (${complete_adsgram?.msg})`
+                    );
+                  }
                 }
+              } else {
+                logger.info(
+                  `<ye>[${this.bot_name}]</ye> | ${this.session_name} | All Ads has been claimed`
+                );
               }
+            } else {
+              logger.info(
+                `<ye>[${this.bot_name}]</ye> | ${
+                  this.session_name
+                } | Next Ads will be available in ${moment(
+                  adsgrams?.nextTime
+                ).fromNow()}`
+              );
             }
           }
         }
