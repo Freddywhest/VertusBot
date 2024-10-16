@@ -239,7 +239,10 @@ class NonSessionTapper {
               moment(adsgrams?.nextTime).isSameOrBefore(moment()) ||
               _.isNull(adsgrams?.nextTime)
             ) {
-              if (_.lt(adsgrams?.completion, adsgrams?.maxCompletion)) {
+              if (
+                _.lt(adsgrams?.completion, adsgrams?.maxCompletion) ||
+                _.isNull(adsgrams?.nextTime)
+              ) {
                 const check_adsgram = await this.api.check_adsgram(http_client);
                 if (check_adsgram?.isSuccess == true) {
                   const sleep_adsgram = _.random(30, 60);
